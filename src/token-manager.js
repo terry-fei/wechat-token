@@ -86,8 +86,12 @@ export default class AccessTokenManager extends EventEmitter {
     }, this.delay);
   }
 
-  // 当用户调用微信api因access_token失效而失败时
-  // 调用此接口能保证获取的access_token是最新的
+  // 当用户调用微信api因 access_token 失效而失败时
+  // 调用此接口能保证获取最新的 access_token
+  // 并在 access_token 刷新后调用传入的 callback
+  // 所以可以把调用失败的 method 传入
+  // 作为一种失败重试机制
+  // 保证在 access_token 刷新后再次调用
   refresh(callback) {
     this.once('token', callback);
     if (this.refreshing) return;
