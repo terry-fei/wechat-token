@@ -2,7 +2,7 @@ import request from 'request';
 import { EventEmitter } from 'events';
 import { stringify as queryStringify } from 'querystring';
 
-export default class AccessTokenManager extends EventEmitter {
+export default class TokenManager extends EventEmitter {
   constructor(appid, secret, retryDelay) {
     super();
 

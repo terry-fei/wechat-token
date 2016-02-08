@@ -13,7 +13,7 @@ npm install && npm test
 ```
 
 ## Usage
-```
+```js
 var TokenManager = require('wechat-token');
 
 var tokenManager = new TokenManager('appid', 'secret');
