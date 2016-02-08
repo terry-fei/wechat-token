@@ -75,7 +75,7 @@ export default class AccessTokenManager extends EventEmitter {
           const error = new Error(data.errmsg);
           error.name = 'WeChatTokenError';
           error.code = data.errcode;
-          this.emit('error', err);
+          this.emit('error', error);
           this.retry();
           return;
         }
