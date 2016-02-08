@@ -1,4 +1,4 @@
-/* eslint-disable func-names, prefer-arrow-callback, no-unused-expressions */
+/* eslint-disable func-names, prefer-arrow-callback, no-unused-expressions, no-new */
 import should from 'should';
 import nock from 'nock';
 import { useFakeTimers } from 'sinon';
@@ -34,7 +34,15 @@ describe('Token Manager', () => {
     });
 
     it('should throw error when not provide appid', function () {
-      // expect(TokenManager).to.throw(Error);
+      should.throws(() => {
+        new TokenManager(null, 'secret');
+      }, Error, /Missing Appid or Secret/);
+    });
+
+    it('should throw error when not provide secret', function () {
+      should.throws(() => {
+        new TokenManager('appid', null);
+      }, Error, /Missing Appid or Secret/);
     });
 
     it('should init with a new access token', function (done) {
