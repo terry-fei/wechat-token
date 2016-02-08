@@ -1,5 +1,5 @@
 import request from 'request';
-import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 import { stringify as queryStringify } from 'querystring';
 
 export default class AccessTokenManager extends EventEmitter {
