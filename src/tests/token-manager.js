@@ -46,7 +46,7 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
-    it('access token expired should fetch new one', function (done) {
+    it('should fetch new one when access token expired', function (done) {
       const previousToken = latestToken;
 
       tokenManager.once('token', (token) => {
