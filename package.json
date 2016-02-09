@@ -8,7 +8,7 @@
     "test": "_mocha $npm_package_options_mocha",
     "test-watch": "npm run test -- --watch",
     "cov": "istanbul cover --report html _mocha -- $npm_package_options_mocha",
-    "coveralls": "istanbul cover --report lcovonly _mocha -- $npm_package_options_mocha && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
+    "coveralls": "./node_modules/.bin/istanbul cover --report lcovonly _mocha -- $npm_package_options_mocha && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
   },
   "options": {
     "mocha": "--compilers js:babel-core/register src/tests/**/*.js"
