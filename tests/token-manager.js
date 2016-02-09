@@ -1,29 +1,34 @@
-/* eslint-disable func-names, prefer-arrow-callback, no-unused-expressions, no-new */
-import should from 'should';
-import nock from 'nock';
-import { useFakeTimers } from 'sinon';
+/* eslint-disable vars-on-top, func-names, no-new */
+var should = require('should');
+var nock = require('nock');
+var useFakeTimers = require('sinon').useFakeTimers;
 
-import TokenManager from '../token-manager';
+var TokenManager = require('../token-manager');
 
-const { describe, before, it, after } = global;
+var describe = global.describe;
+var before = global.before;
+var after = global.after;
+var it = global.it;
 
-const appid = 'whatever';
-const secret = 'whatever';
+var appid = 'whatever';
+var secret = 'whatever';
 
-const generateToken = () => Math.floor(Math.random() * 1e5);
+function generateToken() {
+  return Math.floor(Math.random() * 1e5);
+}
 
-describe('Token Manager', () => {
-  let clock;
-  let tokenManager;
-  let latestToken;
+describe('Token Manager', function () {
+  var clock;
+  var tokenManager;
+  var latestToken;
 
-  describe('Base function', () => {
-    before(() => {
+  describe('Base function', function () {
+    before(function () {
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
         .query(true)
         .times(2)
-        .reply(200, () => {
+        .reply(200, function () {
           latestToken = generateToken();
           return { access_token: latestToken, expires_in: 7200 };
         });
@@ -33,20 +38,20 @@ describe('Token Manager', () => {
       tokenManager.start();
     });
 
-    it('should throw error when not provide appid', () => {
-      should.throws(() => {
+    it('should throw error when not provide appid', function () {
+      should.throws(function () {
         new TokenManager(null, 'secret');
       }, Error, /Missing Appid or Secret/);
     });
 
-    it('should throw error when not provide secret', () => {
-      should.throws(() => {
+    it('should throw error when not provide secret', function () {
+      should.throws(function () {
         new TokenManager('appid', null);
       }, Error, /Missing Appid or Secret/);
     });
 
-    it('should init with a new access token', (done) => {
-      tokenManager.once('token', (token) => {
+    it('should init with a new access token', function (done) {
+      tokenManager.once('token', function (token) {
         should(token).equal(latestToken);
         done();
       });
@@ -54,10 +59,10 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
-    it('should fetch new one when access token expired', (done) => {
-      const previousToken = latestToken;
+    it('should fetch new one when access token expired', function (done) {
+      var previousToken = latestToken;
 
-      tokenManager.once('token', (token) => {
+      tokenManager.once('token', function (token) {
         should(token).not.equal(previousToken);
         should(token).equal(latestToken);
         done();
@@ -66,14 +71,14 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
-    after(() => {
+    after(function () {
       tokenManager.stop();
       clock.restore();
     });
   });
 
-  describe('Network Error', () => {
-    before(() => {
+  describe('Network Error', function () {
+    before(function () {
       nock.cleanAll();
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
@@ -83,7 +88,7 @@ describe('Token Manager', () => {
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
         .query(true)
-        .reply(200, () => {
+        .reply(200, function () {
           latestToken = generateToken();
           return { access_token: latestToken, expires_in: 7200 };
         });
@@ -96,7 +101,7 @@ describe('Token Manager', () => {
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
         .query(true)
-        .reply(200, () => {
+        .reply(200, function () {
           latestToken = generateToken();
           return { access_token: latestToken, expires_in: 7200 };
         });
@@ -106,8 +111,8 @@ describe('Token Manager', () => {
       tokenManager.start();
     });
 
-    it('should emit a error when occur network error', (done) => {
-      tokenManager.once('error', (error) => {
+    it('should emit a error when occur network error', function (done) {
+      tokenManager.once('error', function (error) {
         should.exist(error);
         done();
       });
@@ -115,11 +120,11 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
-    it('should retry when occured network error after retryDelay second', (done) => {
-      const previousToken = latestToken;
+    it('should retry when occured network error after retryDelay second', function (done) {
+      var previousToken = latestToken;
       should(tokenManager.delay).equal(tokenManager.retryDelay);
 
-      tokenManager.once('token', (token) => {
+      tokenManager.once('token', function (token) {
         should(token).not.equal(previousToken);
         should(token).equal(latestToken);
         done();
@@ -128,8 +133,8 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
-    it('should emit a error when return unexpected status code', (done) => {
-      tokenManager.once('error', (error) => {
+    it('should emit a error when return unexpected status code', function (done) {
+      tokenManager.once('error', function (error) {
         should.exist(error);
         done();
       });
@@ -137,11 +142,11 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
-    it('should retry when occured network error after retryDelay second', (done) => {
-      const previousToken = latestToken;
+    it('should retry when occured network error after retryDelay second', function (done) {
+      var previousToken = latestToken;
       should(tokenManager.delay).equal(tokenManager.retryDelay);
 
-      tokenManager.once('token', (token) => {
+      tokenManager.once('token', function (token) {
         should(token).not.equal(previousToken);
         should(token).equal(latestToken);
         done();
@@ -150,24 +155,26 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
-    after(() => {
+    after(function () {
       tokenManager.stop();
       clock.restore();
     });
   });
 
-  describe('Wechat Errcode', () => {
-    before(() => {
+  describe('Wechat Errcode', function () {
+    before(function () {
       nock.cleanAll();
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
         .query(true)
-        .reply(200, () => ({ errcode: 1, errmsg: 'wechat api error' }));
+        .reply(200, function () {
+          return { errcode: 1, errmsg: 'wechat api error' };
+        });
 
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
         .query(true)
-        .reply(200, () => {
+        .reply(200, function () {
           latestToken = generateToken();
           return { access_token: latestToken, expires_in: 7200 };
         });
@@ -177,8 +184,8 @@ describe('Token Manager', () => {
       tokenManager.start();
     });
 
-    it('should emit error when wechat server return errcode', (done) => {
-      tokenManager.once('error', (error) => {
+    it('should emit error when wechat server return errcode', function (done) {
+      tokenManager.once('error', function (error) {
         should.exist(error);
         should(error.name).equal('WeChatTokenError');
         should(error.code).equal(1);
@@ -188,11 +195,11 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
-    it('should retry when occured errcode error after retryDelay second', (done) => {
-      const previousToken = latestToken;
+    it('should retry when occured errcode error after retryDelay second', function (done) {
+      var previousToken = latestToken;
       should(tokenManager.delay).equal(tokenManager.retryDelay);
 
-      tokenManager.once('token', (token) => {
+      tokenManager.once('token', function (token) {
         should(token).not.equal(previousToken);
         should(token).equal(latestToken);
         done();
@@ -201,28 +208,30 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
-    after(() => {
+    after(function () {
       tokenManager.stop();
       clock.restore();
     });
   });
 
-  describe('Custom retryDelay', () => {
-    const customRetryDelay = 10;
-    before(() => {
+  describe('Custom retryDelay', function () {
+    var customRetryDelay = 10;
+    before(function () {
       nock.cleanAll();
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
         .query(true)
-        .reply(200, () => ({ errcode: 1, errmsg: 'wechat api error' }));
+        .reply(200, function () {
+          return { errcode: 1, errmsg: 'wechat api error' };
+        });
 
       clock = useFakeTimers();
       tokenManager = new TokenManager(appid, secret, customRetryDelay);
       tokenManager.start();
     });
 
-    it('should replace default retryDelay', (done) => {
-      tokenManager.once('error', (error) => {
+    it('should replace default retryDelay', function (done) {
+      tokenManager.once('error', function (error) {
         should.exist(error);
         should(error.name).equal('WeChatTokenError');
         should(error.code).equal(1);
@@ -233,20 +242,20 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
-    after(() => {
+    after(function () {
       tokenManager.stop();
       clock.restore();
     });
   });
 
-  describe('Refresh', () => {
-    before(() => {
+  describe('Refresh', function () {
+    before(function () {
       nock.cleanAll();
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
         .query(true)
         .times(2)
-        .reply(200, () => {
+        .reply(200, function () {
           latestToken = generateToken();
           return { access_token: latestToken, expires_in: 7200 };
         });
@@ -256,17 +265,8 @@ describe('Token Manager', () => {
       tokenManager.start();
     });
 
-    // it('should init with a new access token', (done) {
-    //   tokenManager.once('token', (token) => {
-    //     should(token).equal(latestToken);
-    //     done();
-    //   });
-    //
-    //   clock.tick(tokenManager.delay);
-    // });
-
-    it('should refresh access token', (done) => {
-      tokenManager.refresh((token) => {
+    it('should refresh access token', function (done) {
+      tokenManager.refresh(function (token) {
         should(token).equal(latestToken);
         done();
       });
@@ -274,19 +274,19 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
-    it('should not refresh access token when refreshing access token', (done) => {
-      tokenManager.refresh((token) => {
+    it('should not refresh access token when refreshing access token', function (done) {
+      tokenManager.refresh(function (token) {
         should(token).equal(latestToken);
         done();
       });
 
-      const refreshing = tokenManager.refresh(function () {});
+      var refreshing = tokenManager.refresh(function () {});
       should(refreshing).equal(true);
 
       clock.tick(tokenManager.delay);
     });
 
-    after(() => {
+    after(function () {
       tokenManager.stop();
       clock.restore();
     });
