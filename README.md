@@ -1,4 +1,4 @@
-## Wechat Token - Auto Refresh Access Token
+## Wechat Token - Auto Refresh Access Token Manager
 
 [![NPM version](https://badge.fury.io/js/wechat-token.png)](http://badge.fury.io/js/wechat-token)
 [![Build Status](https://travis-ci.org/feit/wechat-token.png?branch=master)](https://travis-ci.org/feit/wechat-token)
@@ -34,14 +34,22 @@ tokenManager.on('error' function(error) {
   console.error(error);
 });
 
-// force refresh access token when necessary
-// this will also emit `token` event when access token updated
-// so you can do retry method inside this callback function
+// 当用户调用微信api因 access_token 失效而失败时
+// 调用此接口能强制刷新 access_token
+// 并在 access_token 刷新后调用传入的 callback
+// 所以可以把调用失败的 method 传入
+// 作为一种失败重试机制
+// 保证在 access_token 刷新后再次调用
 tokenManager.refresh(function(token) {});
 
 // make token manager start work
 tokenManager.start();
 ```
+
+### 错误重试机制
+当获取`access_token`发生网络错误，或者是微信服务器返回了`errcode`时
+Token Manager 会默认在20秒后重新尝试获取`access_token`
+你可以在TokenManager构造函数的第三个参数修改默认重试等待时间，单位秒
 
 ### License
 The MIT license.
