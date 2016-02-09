@@ -1,18 +1,19 @@
-Wechat Token
-======
-Auto Refresh Access Token
+## Wechat Token - Auto Refresh Access Token
 
-## Install
+[![NPM version](https://badge.fury.io/js/wechat-token.png)](http://badge.fury.io/js/wechat-token)
+[![Build Status](https://travis-ci.org/feit/wechat-token.png?branch=master)](https://travis-ci.org/feit/wechat-token)
+[![Dependencies Status](https://david-dm.org/feit/wechat-token.png)](https://david-dm.org/feit/wechat-token)
+### Install
 ```
 npm install wechat-token --save
 ```
 
-## Test
+### Test
 ```
 npm install && npm test
 ```
 
-## Usage
+### Usage
 ```js
 var TokenManager = require('wechat-token');
 
@@ -40,5 +41,5 @@ tokenManager.refresh(function(token) {});
 tokenManager.start();
 ```
 
-## License
+### License
 The MIT license.
