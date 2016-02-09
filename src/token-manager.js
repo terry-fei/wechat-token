@@ -61,13 +61,16 @@ export default class TokenManager extends EventEmitter {
     this.accessTokenTimer = setTimeout(() => {
       request({ uri: this.accessTokenUri, json: true }, (err, res, data) => {
         if (err) {
-          this.emit('error', err);
           this.retry();
+          this.emit('error', err);
           return;
         }
 
         if (res.statusCode !== 200) {
+          const error = new Error(`Unexpected Status Code: ${res.statusCode}`);
+          error.name = 'WeChatTokenError';
           this.retry();
+          this.emit('error', error);
           return;
         }
 
@@ -75,8 +78,8 @@ export default class TokenManager extends EventEmitter {
           const error = new Error(data.errmsg);
           error.name = 'WeChatTokenError';
           error.code = data.errcode;
-          this.emit('error', error);
           this.retry();
+          this.emit('error', error);
           return;
         }
 
@@ -87,7 +90,7 @@ export default class TokenManager extends EventEmitter {
   }
 
   // 当用户调用微信api因 access_token 失效而失败时
-  // 调用此接口能保证获取最新的 access_token
+  // 调用此接口能强制刷新 access_token
   // 并在 access_token 刷新后调用传入的 callback
   // 所以可以把调用失败的 method 传入
   // 作为一种失败重试机制

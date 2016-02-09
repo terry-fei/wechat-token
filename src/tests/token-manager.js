@@ -74,10 +74,24 @@ describe('Token Manager', () => {
 
   describe('Network Error', () => {
     before(() => {
+      nock.cleanAll();
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
         .query(true)
         .replyWithError('network error');
+
+      nock('https://api.weixin.qq.com')
+        .get('/cgi-bin/token')
+        .query(true)
+        .reply(200, () => {
+          latestToken = generateToken();
+          return { access_token: latestToken, expires_in: 7200 };
+        });
+
+      nock('https://api.weixin.qq.com')
+        .get('/cgi-bin/token')
+        .query(true)
+        .reply(404, 'Not Found');
 
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
@@ -103,7 +117,29 @@ describe('Token Manager', () => {
 
     it('should retry when occured network error after retryDelay second', (done) => {
       const previousToken = latestToken;
-      should(this.delay).equal(this.retryDelay);
+      should(tokenManager.delay).equal(tokenManager.retryDelay);
+
+      tokenManager.once('token', (token) => {
+        should(token).not.equal(previousToken);
+        should(token).equal(latestToken);
+        done();
+      });
+
+      clock.tick(tokenManager.delay);
+    });
+
+    it('should emit a error when return unexpected status code', (done) => {
+      tokenManager.once('error', (error) => {
+        should.exist(error);
+        done();
+      });
+
+      clock.tick(tokenManager.delay);
+    });
+
+    it('should retry when occured network error after retryDelay second', (done) => {
+      const previousToken = latestToken;
+      should(tokenManager.delay).equal(tokenManager.retryDelay);
 
       tokenManager.once('token', (token) => {
         should(token).not.equal(previousToken);
@@ -122,17 +158,15 @@ describe('Token Manager', () => {
 
   describe('Wechat Errcode', () => {
     before(() => {
+      nock.cleanAll();
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
         .query(true)
-        .reply(200, () => {
-          return { errcode: 1, errmsg: 'wechat api error' };
-        });
+        .reply(200, () => ({ errcode: 1, errmsg: 'wechat api error' }));
 
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
         .query(true)
-        .times(2)
         .reply(200, () => {
           latestToken = generateToken();
           return { access_token: latestToken, expires_in: 7200 };
@@ -156,7 +190,7 @@ describe('Token Manager', () => {
 
     it('should retry when occured errcode error after retryDelay second', (done) => {
       const previousToken = latestToken;
-      should(this.delay).equal(this.retryDelay);
+      should(tokenManager.delay).equal(tokenManager.retryDelay);
 
       tokenManager.once('token', (token) => {
         should(token).not.equal(previousToken);
@@ -173,8 +207,41 @@ describe('Token Manager', () => {
     });
   });
 
+  describe('Custom retryDelay', () => {
+    const customRetryDelay = 10;
+    before(() => {
+      nock.cleanAll();
+      nock('https://api.weixin.qq.com')
+        .get('/cgi-bin/token')
+        .query(true)
+        .reply(200, () => ({ errcode: 1, errmsg: 'wechat api error' }));
+
+      clock = useFakeTimers();
+      tokenManager = new TokenManager(appid, secret, customRetryDelay);
+      tokenManager.start();
+    });
+
+    it('should replace default retryDelay', (done) => {
+      tokenManager.once('error', (error) => {
+        should.exist(error);
+        should(error.name).equal('WeChatTokenError');
+        should(error.code).equal(1);
+        should(tokenManager.delay).equal(customRetryDelay);
+        done();
+      });
+
+      clock.tick(tokenManager.delay);
+    });
+
+    after(() => {
+      tokenManager.stop();
+      clock.restore();
+    });
+  });
+
   describe('Refresh', () => {
     before(() => {
+      nock.cleanAll();
       nock('https://api.weixin.qq.com')
         .get('/cgi-bin/token')
         .query(true)

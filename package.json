@@ -5,11 +5,12 @@
   "main": "./lib/token-manager",
   "scripts": {
     "compile": "babel --plugins \"transform-runtime\" ./src --ignore tests --out-dir ./lib",
-    "test": "mocha $npm_package_options_mocha",
-    "test-watch": "npm run test -- --watch"
+    "test": "_mocha $npm_package_options_mocha",
+    "test-watch": "npm run test -- --watch",
+    "cov": "istanbul cover --report html _mocha -- $npm_package_options_mocha"
   },
   "options": {
-    "mocha": "--require scripts/mocha_runner src/**/tests/**/*.js"
+    "mocha": "--compilers js:babel-core/register src/tests/**/*.js"
   },
   "author": "feit",
   "license": "MIT",
@@ -26,6 +27,7 @@
     "babel-preset-stage-2": "^6.3.13",
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^4.0.0",
+    "istanbul": "^0.4.2",
     "mocha": "^2.4.5",
     "nock": "^7.0.2",
     "should": "^8.2.1"

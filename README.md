@@ -20,6 +20,8 @@ var tokenManager = new TokenManager('appid', 'secret');
 
 var accessToken = '';
 
+// 在刷新过程中，公众平台后台会保证在刷新短时间内
+// 新老access_token都可用，这保证了第三方业务的平滑过渡
 tokenManager.on('token', function(token) {
   accessToken = token;
 });
