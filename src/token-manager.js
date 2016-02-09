@@ -97,7 +97,7 @@ export default class TokenManager extends EventEmitter {
   // 保证在 access_token 刷新后再次调用
   refresh(callback) {
     this.once('token', callback);
-    if (this.refreshing) return;
+    if (this.refreshing) return true;
     this.refreshing = true;
     this.delay = 1;
     this.autoFetchAccessToken();

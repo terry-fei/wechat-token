@@ -274,6 +274,18 @@ describe('Token Manager', () => {
       clock.tick(tokenManager.delay);
     });
 
+    it('should not refresh access token when refreshing access token', (done) => {
+      tokenManager.refresh((token) => {
+        should(token).equal(latestToken);
+        done();
+      });
+
+      const refreshing = tokenManager.refresh(function () {});
+      should(refreshing).equal(true);
+
+      clock.tick(tokenManager.delay);
+    });
+
     after(() => {
       tokenManager.stop();
       clock.restore();
