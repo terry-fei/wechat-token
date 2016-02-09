@@ -1,6 +1,6 @@
 {
   "name": "wechat-token",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "An auto refresh wechat access token manager",
   "main": "./lib/token-manager",
   "scripts": {
