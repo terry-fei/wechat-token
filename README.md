@@ -3,6 +3,8 @@
 [![NPM version](https://badge.fury.io/js/wechat-token.png)](http://badge.fury.io/js/wechat-token)
 [![Build Status](https://travis-ci.org/feit/wechat-token.png?branch=master)](https://travis-ci.org/feit/wechat-token)
 [![Dependencies Status](https://david-dm.org/feit/wechat-token.png)](https://david-dm.org/feit/wechat-token)
+[![Coverage Status](https://coveralls.io/repos/github/feit/wechat-token/badge.svg?branch=master)](https://coveralls.io/github/feit/wechat-token?branch=master)
+
 ### Install
 ```
 npm install wechat-token --save
