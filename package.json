@@ -11,6 +11,10 @@
   },
   "author": "feit",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:feit/wechat-token.git"
+  },
   "dependencies": {
     "request": "^2.69.0"
   },
@@ -24,5 +28,12 @@
     "nock": "^7.0.2",
     "should": "^8.2.1",
     "sinon": "^1.17.3"
-  }
+  },
+  "keywords": [
+    "access",
+    "token",
+    "access_token",
+    "weixin",
+    "wechat"
+  ]
 }
