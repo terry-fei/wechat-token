@@ -25,7 +25,7 @@ function TokenManager(appid, secret, retryDelay) {
     grant_type: 'client_credential',
   });
 
-  this.accessTokenUri = 'https://api.weixin.qq.com/cgi-bin/token?${this.querystring}';
+  this.accessTokenUri = 'https://api.weixin.qq.com/cgi-bin/token?' + this.querystring;
 }
 
 util.inherits(TokenManager, EventEmitter);
